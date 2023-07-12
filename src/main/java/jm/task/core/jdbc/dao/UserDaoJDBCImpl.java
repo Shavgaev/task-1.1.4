@@ -2,6 +2,7 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,6 +12,8 @@ import java.util.List;
 
 import static jm.task.core.jdbc.util.Util.getConnection;
 
+
+
 public class UserDaoJDBCImpl implements UserDao {
     private final Connection connection;
 
@@ -19,7 +22,6 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-
         try {
             connection.setAutoCommit(false);
             try (PreparedStatement createTableStatement = connection.prepareStatement(
@@ -115,33 +117,20 @@ public class UserDaoJDBCImpl implements UserDao {
         }
     }
 
-    public List getAllUsers() {
-        List users = new ArrayList<>();
-        try {
-            connection.setAutoCommit(false);
-            try (PreparedStatement getAllUsersStatement = connection.prepareStatement(
-                    "SELECT * FROM users")) {
-                ResultSet resultSet = getAllUsersStatement.executeQuery();
-                while (resultSet.next()) {
-                    long id = resultSet.getLong("id");
-                    String name = resultSet.getString("name");
-                    String lastName = resultSet.getString("lastname");
-                    byte age = resultSet.getByte("age");
-                    users.add(new User(name, lastName, age));
-                }
-                connection.commit();
-            } catch (SQLException e) {
-                connection.rollback();
-                e.printStackTrace();
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        try (PreparedStatement getAllUsersStatement = connection.prepareStatement(
+                "SELECT * FROM users")) {
+            ResultSet resultSet = getAllUsersStatement.executeQuery();
+            while (resultSet.next()) {
+                long id = resultSet.getLong("id");
+                String name = resultSet.getString("name");
+                String lastName = resultSet.getString("lastname");
+                byte age = resultSet.getByte("age");
+                users.add(new User(name, lastName, age));
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                connection.setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         return users;
     }
